@@ -9,6 +9,8 @@ This directory contains the Matlab code for comparing exact Gross mana dynamics 
   * tensor-product qutrit T-type magic states;
   * GUE-evolved product state;
   * computational-basis product state.
+* `Mana_0.2_4states.png` is the saved figure output for the four-state comparison.
+* `Mana_0.2_4states.pdf` is the corresponding PDF figure.
 
 ## Usage
 

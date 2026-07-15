@@ -25,9 +25,4 @@ Each directory contains its own README with a short overview of the files. The m
 * `qudit_mana_rotation/qudit_mana_rotation_strict.py`: computes the same qudit mana response using strict global Clifford sampling over the qudit symplectic group.
 * `four_state_mana_protocol/Mana_protocol_4states_log2_embedded_0714.m`: compares exact Gross mana dynamics for four initial-state ensembles in the monitored Clifford protocol.
 
-The qudit mana code uses the following rotation-phase convention in the local gate:
-
-* for `d = 3`, `tau = (0, 1, -1)`;
-* for `d = 5`, `tau = (0, 1, 3, 2, 4)`.
-
 Run each code group from within its own directory so that relative paths for data and figure outputs resolve correctly.
