@@ -1,17 +1,19 @@
 # Qudit steady-state mana versus rotation angle
 
-This folder contains the odd-prime qudit simulations for steady-state Gross mana under the monitored-circuit protocol.
+This directory contains the Python code for odd-prime qudit simulations of the steady-state Gross mana under the monitored-circuit protocol.
 
-Main files:
-- `qudit_mana_rotation.py`: main mana simulation
-- `qudit_mana_rotation_strict.py`: strict global Clifford sampling version
-- `test_d5_small_theta.py`: focused small-angle test for `d=5`
+## Files
 
-Figure:
-- `mana_strict_clifford.png`
+* `qudit_mana_rotation.py` contains the main qudit mana simulation.
+* `qudit_mana_rotation_strict.py` contains the version with strict global Clifford sampling over the qudit symplectic group.
+* `test_d5_small_theta.py` contains a focused small-angle test for the case `d = 5`.
+* `mana_strict_clifford.png` is an example figure output for steady-state mana versus rotation angle.
 
-Rotation-phase convention used in the local gate:
-- `d = 3`: `tau = (0, 1, -1)`
-- `d = 5`: `tau = (0, 1, 3, 2, 4)`
+The local rotation gate uses the following diagonal phase convention:
 
-These are the diagonal phase parameters used in the local rotation gate for the numerical curves in this folder.
+* `d = 3`: `tau = (0, 1, -1)`
+* `d = 5`: `tau = (0, 1, 3, 2, 4)`
+
+## Usage
+
+Run `qudit_mana_rotation.py` or `qudit_mana_rotation_strict.py` from within this directory to generate the steady-state mana data and the corresponding plots.
