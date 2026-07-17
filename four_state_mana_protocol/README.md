@@ -1,40 +1,40 @@
-# Four-state mana protocol comparison
+# Exact mana dynamics for four representative initial states
 
-This directory contains the Matlab code for comparing exact Gross mana dynamics for four initial-state ensembles under the monitored Clifford protocol.
+This directory contains Matlab code for comparing the exact Gross mana dynamics of four representative initial states in a random monitored quantum circuit. The numerical task studies how the magic of different initial states evolves with measurement steps at fixed parameters, and whether those states approach a common long-time behavior under the same monitored dynamics.
 
-## Files
+The script compares the following four initial states: Haar-random states, tensor-product qutrit `T`-type states, GUE-evolved product states, and computational-basis product states. The single-qutrit `T`-type state is taken as
 
-* `Mana_protocol_4states_log2_embedded_0714.m` contains the full simulation. It compares the following initial ensembles:
-  * global Haar-random state;
-  * tensor-product qutrit T-type magic states;
-  * GUE-evolved product state;
-  * computational-basis product state.
-* `Mana_0.2_4states.png` is the saved figure output for the four-state comparison.
-* `Mana_0.2_4states.pdf` is the corresponding PDF figure.
+`|T\rangle \propto |0\rangle + e^{2\pi i/9}|1\rangle + e^{-2\pi i/9}|2\rangle`,
 
-## Protocol and figure details
+and the GUE-evolved state is
 
-The script uses the public-frame equivalent of the monitored Clifford protocol at `d = 3`, `N = 5`, and `theta_M = 0.2`. It applies the labelled random Pauli pair, the qutrit T-type kick, and the Born measurement exactly as documented in the script header.
+`|\psi\rangle_{\mathrm{GUE}} = \exp(-iH_{\mathrm{GUE}}t)|0\rangle^{\otimes N}`,
 
-The four initial-state ensembles are:
+with the spectrum normalized to `[-2,2]` and `t = 0.1`.
 
-* Haar-random states;
-* `|T\rangle^{\otimes N}`, with `|T\rangle \propto |0\rangle + e^{2\pi i/9}|1\rangle + e^{-2\pi i/9}|2\rangle`;
-* `|\psi\rangle_{\mathrm{GUE}} = \exp(-iH_{\mathrm{GUE}}t)|0\rangle^{\otimes N}` with normalized spectrum in `[-2,2]` and `t=0.1`;
-* `|0\rangle^{\otimes N}`.
+The simulation uses the public-frame-equivalent implementation of the qutrit monitored Clifford protocol at fixed parameters
 
-The current settings are:
+* `d = 3`
+* `N = 5`
+* `theta_M = 0.2`
 
-* `Tsteps = 2000`;
-* `Nr = 1000`;
-* `stride = 1`;
-* `seed = 1`;
-* the same measurement depth for all four initial ensembles.
+with `Tsteps = 2000`, `Nr = 1000`, `stride = 1`, and `seed = 1`; the burn-in length is `0`. All four initial states are evolved under the same monitored dynamics and on the same time grid, so this simulation directly compares how different initial magic structures evolve in time and how they behave at long times. The script evaluates the exact mana at every recorded time step and averages over all trajectories at that step, producing an ensemble-averaged exact-mana time-evolution curve.
 
-The current code does not use a separate burn-in or terminal-time-only averaging. It averages the exact mana at each recorded time step over trajectories, so every trajectory is sampled at the same set of times.
+The exact Gross mana used in this directory is defined as
 
-The paper caption already captures the main numerical meaning; the README adds that the script also saves the figure files and the numerical data.
+`\mathcal{M}(\psi) = \log_2\|W_\psi\|_1`.
+
+The main files in this directory are:
+
+* `Mana_protocol_4states_log2_embedded_0714.m`: main simulation script;
+* `Mana_0.2_4states.png`: figure output for the four-state comparison;
+* `Mana_0.2_4states.pdf`: corresponding PDF output.
+
+
+## Installation
+
+The Matlab code in this directory was run in **Matlab R2024b**.
 
 ## Usage
 
-Run `Mana_protocol_4states_log2_embedded_0714.m` from within this directory. The script produces figure files and saved numerical data for the four-state comparison.
+Run `Mana_protocol_4states_log2_embedded_0714.m` to generate the exact mana time-evolution figure for the four representative initial states and the associated data files.
