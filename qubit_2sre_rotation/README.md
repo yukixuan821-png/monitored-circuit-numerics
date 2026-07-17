@@ -29,7 +29,7 @@ where `r` is the trajectory index.
 
 The 2-SRE observable used in this directory is implemented as
 
-* $M_2 = N \ln 2 - \ln\!\left(\sum_P |\langle P \rangle|^4\right)$
+* $M_2 = N \ln 2 - \ln \left(\sum_P |\langle P \rangle|^4\right)$
 * $m_2 = M_2 / N$
 
 where the sum runs over all Pauli strings. The main script uses an FWHT-based accelerated implementation for this quantity.
