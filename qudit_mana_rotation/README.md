@@ -47,7 +47,7 @@ For $d = 5$, the current code fixes $a = 1$ and takes $\tau_{1,5}(k)$ to be the 
 Gross mana in this directory is computed through the phase-point-operator representation, implemented as
 
 * $W(u,v) = \langle \psi|A_{u,v}|\psi \rangle / d^N$
-* $\mathcal{M}(\psi) = \log \sum_{u,v} |\operatorname{Re} W(u,v)|$
+* $\mathcal{M}(\psi) = \log \sum_{u,v} |\mathrm{Re}\, W(u,v)|$
 
 The main files in this directory are:
 
