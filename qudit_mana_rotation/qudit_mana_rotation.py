@@ -1,365 +1,194 @@
+"""Odd-prime weak-magic-injection scan used for Figure 3.
+
+Each monitored cycle independently samples the labelled public Clifford frame,
+including both spectral offsets.  Gross mana is reported in bits.
 """
-Qudit monitored circuit steady-state Mana vs rotation angle.
-Protocol same as Fig.6 but for qudits (odd prime d).
-Expected: linear response Mana ~ theta at small angles.
-Route A: brick-wall approximation for qudit Clifford gates.
-"""
+from __future__ import annotations
+
+import argparse
+import csv
+import hashlib
+import json
+from pathlib import Path
 
 import numpy as np
-import matplotlib.pyplot as plt
-import time
-from itertools import product
 
-# ==========================================
-# 1. Basic qudit operators
-# ==========================================
-
-def omega(d, k):
-    return np.exp(2j * np.pi * k / d)
+CASES = {(3, 2): (50, 500), (3, 3): (50, 500), (3, 4): (30, 500), (5, 2): (50, 500)}
+THETA_VALUES = np.logspace(-4, 0, 10)
 
 
-def X_matrix(d):
-    X = np.zeros((d, d), dtype=complex)
-    for j in range(d):
-        X[(j + 1) % d, j] = 1.0
-    return X
+def _rng(d, n, theta_index, replica, master_seed=1):
+    identity = [3, f"d{d}_n{n}", theta_index, replica]
+    words = np.frombuffer(hashlib.sha256(json.dumps(identity, separators=(",", ":")).encode()).digest(), dtype="<u4")
+    seed = np.random.SeedSequence([master_seed, *map(int, words)])
+    return np.random.Generator(np.random.PCG64DXSM(seed))
 
 
-def Z_matrix(d):
-    Z = np.zeros((d, d), dtype=complex)
-    for j in range(d):
-        Z[j, j] = omega(d, j)
-    return Z
+def _digits(d, n):
+    values = np.arange(d**n, dtype=np.int64)[:, None]
+    powers = d ** np.arange(n - 1, -1, -1, dtype=np.int64)
+    return (values // powers) % d
 
 
-def fourier_matrix(d):
-    """QFT: F|j> = (1/sqrt(d)) sum_k omega^{jk} |k>"""
-    F = np.zeros((d, d), dtype=complex)
-    for j in range(d):
-        for k in range(d):
-            F[k, j] = omega(d, j * k) / np.sqrt(d)
-    return F
+def _indices(labels, d):
+    powers = d ** np.arange(labels.shape[-1] - 1, -1, -1, dtype=np.int64)
+    return np.asarray(labels @ powers, dtype=np.int64)
 
 
-def phase_matrix(d):
-    """Phase gate P|j> = omega^{j(j-1)/2} |j> (Clifford generator for odd d)"""
-    P = np.zeros((d, d), dtype=complex)
-    for j in range(d):
-        P[j, j] = omega(d, j * (j - 1) / 2)
-    return P
+def sample_public_frame(n, d, rng):
+    while True:
+        x = rng.integers(0, d, size=2*n, dtype=np.int64)
+        if np.any(x):
+            break
+    coeff = np.concatenate((-x[n:], x[:n])) % d
+    pivot = int(np.flatnonzero(coeff)[0])
+    z = np.empty_like(x)
+    mask = np.arange(2*n) != pivot
+    z[mask] = rng.integers(0, d, size=2*n-1, dtype=np.int64)
+    remainder = int(coeff[mask] @ z[mask]) % d
+    z[pivot] = ((1-remainder) * pow(int(coeff[pivot]), -1, d)) % d
+    offsets = rng.integers(0, d, size=2, dtype=np.int64)
+    return x, z, int(offsets[0]), int(offsets[1])
 
 
-# ==========================================
-# 2. Mana computation (from test_mana.py)
-# ==========================================
-
-def D_matrix(d, p, q):
-    """Displacement operator w(p,q) = tau^{pq} X^p Z^q, tau = -e^{i pi / d}"""
-    X = X_matrix(d)
-    Z = Z_matrix(d)
-    Xp = np.linalg.matrix_power(X, p)
-    Zq = np.linalg.matrix_power(Z, q)
-    tau = -np.exp(1j * np.pi / d)
-    return Xp @ Zq * (tau ** (p * q))
-
-
-def precompute_phase_point_operators(d, n):
-    A_single = {}
-    for u in range(d):
-        for v in range(d):
-            A = np.zeros((d, d), dtype=complex)
-            for p in range(d):
-                for q in range(d):
-                    A += omega(d, u * q - v * p) * D_matrix(d, p, q)
-            A_single[(u, v)] = A / d
-    return A_single
+def _displacement(state, axis, d, power=1, offset=0):
+    n = axis.size // 2
+    x, z = axis[:n] % d, axis[n:] % d
+    r = power % d
+    q = _digits(d, n)
+    target = _indices((q + r*x) % d, d)
+    omega = np.exp(2j*np.pi/d); tau = -np.exp(1j*np.pi/d)
+    phase = omega ** ((r*(q @ z) + r*offset) % d)
+    phase *= tau ** (r*r*int(x @ z))
+    out = np.empty_like(state)
+    out[target] = phase * state
+    return out
 
 
-def mana(psi, d, A_single=None):
-    D = len(psi)
-    n = int(round(np.log(D) / np.log(d)))
-    if A_single is None:
-        A_single = precompute_phase_point_operators(d, n)
-
-    W = np.zeros(d ** (2 * n), dtype=complex)
-    idx = 0
-    for phase_point in product(range(d), repeat=2 * n):
-        A = np.eye(1, dtype=complex)
-        for i in range(n):
-            u_i = phase_point[2 * i]
-            v_i = phase_point[2 * i + 1]
-            A = np.kron(A, A_single[(u_i, v_i)])
-        W[idx] = np.vdot(psi, A @ psi) / D
-        idx += 1
-
-    return np.log(np.sum(np.abs(W.real)))
+def _spectral_components(state, axis, d, offset):
+    orbit = np.stack([_displacement(state, axis, d, r, offset) for r in range(d)])
+    return np.fft.fft(orbit, axis=0) / d
 
 
-# ==========================================
-# 3. Circuit operations
-# ==========================================
-
-def apply_single_qudit(psi, U, i, N, d):
-    psi_r = psi.reshape([d] * N)
-    psi_r = np.moveaxis(psi_r, i, 0)
-    psi_r = np.tensordot(U, psi_r, axes=([1], [0]))
-    psi_r = np.moveaxis(psi_r, 0, i)
-    return psi_r.reshape(-1)
+def injection_phases(d, theta):
+    if d == 3:
+        return np.array([1, np.exp(2j*np.pi*theta/9), np.exp(-2j*np.pi*theta/9)])
+    labels = np.arange(d, dtype=np.int64)
+    cubic_lift = (labels**3) % d
+    return np.exp(-2j*np.pi*theta*cubic_lift/d)
 
 
-def apply_SUM(psi, c, t, N, d):
-    """Generalized CNOT: SUM|c,t> = |c, c+t mod d>"""
-    psi_r = psi.reshape([d] * N)
-    psi_r = np.moveaxis(psi_r, [c, t], [0, 1])
-    new_psi = np.zeros_like(psi_r)
-    for a in range(d):
-        for b in range(d):
-            new_psi[a, b, ...] = psi_r[a, (b - a) % d, ...]
-    psi_r = new_psi
-    psi_r = np.moveaxis(psi_r, [0, 1], [c, t])
-    return psi_r.reshape(-1)
+def monitored_cycle(state, d, theta, rng):
+    n = round(np.log(state.size)/np.log(d))
+    x, z, x_offset, z_offset = sample_public_frame(n, d, rng)
+    components = _spectral_components(state, x, d, x_offset)
+    state = np.einsum("k,kj->j", injection_phases(d, theta), components, optimize=True)
+    state /= np.linalg.norm(state)
+    components = _spectral_components(state, z, d, z_offset)
+    probabilities = np.maximum(np.sum(np.abs(components)**2, axis=1).real, 0)
+    probabilities /= probabilities.sum()
+    outcome = int(rng.choice(d, p=probabilities))
+    return components[outcome] / np.sqrt(probabilities[outcome])
 
 
-def apply_SUM_inv(psi, c, t, N, d):
-    """Inverse SUM: SUM†|c,t> = |c, t-c mod d>"""
-    psi_r = psi.reshape([d] * N)
-    psi_r = np.moveaxis(psi_r, [c, t], [0, 1])
-    new_psi = np.zeros_like(psi_r)
-    for a in range(d):
-        for b in range(d):
-            new_psi[a, b, ...] = psi_r[a, (b + a) % d, ...]
-    psi_r = new_psi
-    psi_r = np.moveaxis(psi_r, [0, 1], [c, t])
-    return psi_r.reshape(-1)
+def gross_mana(state, d, q_block=16):
+    """Return log2 ||W||_1 using the pure-state multidimensional FFT kernel."""
+    n = round(np.log(state.size)/np.log(d)); dimension = d**n
+    labels = _digits(d, n); half = (pow(2, -1, d)*labels) % d
+    result = np.empty((dimension, dimension), dtype=float)
+    axes = tuple(range(1, n+1)); fft_shape = (d,)*n
+    for begin in range(0, dimension, q_block):
+        q = labels[begin:begin+q_block, None, :]
+        plus = _indices((q + half[None, :, :]) % d, d)
+        minus = _indices((q - half[None, :, :]) % d, d)
+        correlations = state[plus] * np.conj(state[minus])
+        transformed = np.fft.fftn(correlations.reshape((-1,)+fft_shape), axes=axes) / dimension
+        result[begin:begin+q.shape[0]] = transformed.reshape(q.shape[0], dimension).real
+    return float(np.log2(np.sum(np.abs(result))))
 
 
-# ==========================================
-# 4. Random qudit Clifford circuit (brick-wall)
-# ==========================================
-
-def get_gate_dicts(d):
-    F = fourier_matrix(d)
-    P = phase_matrix(d)
-    X = X_matrix(d)
-    Z = Z_matrix(d)
-    I = np.eye(d, dtype=complex)
-
-    gates = {
-        'F': F, 'Fd': F.conj().T,
-        'P': P, 'Pd': P.conj().T,
-        'X': X, 'Xd': np.linalg.matrix_power(X, d - 1),
-        'Z': Z, 'Zd': np.linalg.matrix_power(Z, d - 1),
-        'I': I,
-    }
-    inv = {
-        'F': 'Fd', 'Fd': 'F',
-        'P': 'Pd', 'Pd': 'P',
-        'X': 'Xd', 'Xd': 'X',
-        'Z': 'Zd', 'Zd': 'Z',
-        'I': 'I',
-    }
-    return gates, inv
+def run_trajectory(d, n, theta, cycles, rng):
+    state = np.zeros(d**n, dtype=np.complex128); state[0] = 1
+    for _ in range(cycles):
+        state = monitored_cycle(state, d, theta, rng)
+    return gross_mana(state, d)
 
 
-def random_qudit_clifford_circuit(N, d, depth=None):
-    if depth is None:
-        depth = N
-    gates, _ = get_gate_dicts(d)
-    single_choices = list(gates.keys())
-    gate_list = []
-    for layer in range(depth):
-        # Single-qudit gates
-        for i in range(N):
-            gate_list.append(('single', i, np.random.choice(single_choices)))
-        # SUM gates on even or odd pairs
-        if layer % 2 == 0:
-            for i in range(0, N - 1, 2):
-                gate_list.append(('sum', i, i + 1))
-        else:
-            for i in range(1, N - 1, 2):
-                gate_list.append(('sum', i, i + 1))
-    return gate_list
+def plot_results(data_path="qudit_mana_rotation_data.txt", output_png=None, output_pdf=None):
+    data_path = Path(data_path)
+    output_png = data_path.with_name("mana_strict_clifford.png") if output_png is None else Path(output_png)
+    output_pdf = data_path.with_name("mana_strict_clifford.pdf") if output_pdf is None else Path(output_pdf)
+    with open(data_path, encoding="utf-8") as stream:
+        reader = csv.DictReader((line for line in stream if not line.startswith("#")), delimiter="\t")
+        rows = [{key: float(value) for key, value in row.items()} for row in reader]
+    colors = ["#0072BD", "#D95319", "#EDB120", "#7E2F8E"]
+    markers = ["o", "s", "^", "D"]
+    import matplotlib.pyplot as plt
+    plt.rcParams.update({"font.family": "Times New Roman", "mathtext.fontset": "stix", "font.size": 13, "axes.labelsize": 13, "legend.fontsize": 12, "xtick.labelsize": 13, "ytick.labelsize": 13, "pdf.fonttype": 42, "svg.fonttype": "none"})
+    fig, ax = plt.subplots(figsize=(6.5, 4.5))
+    fig.subplots_adjust(left=0.16, right=0.97, bottom=0.17, top=0.96)
+    all_means = []
+    for color, marker, (d, n) in zip(colors, markers, ((3, 2), (3, 3), (3, 4), (5, 2))):
+        group = sorted(
+            (row for row in rows if int(row["d"]) == d and int(row["N"]) == n),
+            key=lambda row: row["theta_M"],
+        )
+        theta = np.array([row["theta_M"] for row in group])
+        mean = np.array([row["mana_mean"] for row in group])
+        sem = np.array([row["mana_sem"] for row in group])
+        if np.any(mean <= 0):
+            raise ValueError("log plot requires strictly positive aggregate means")
+        lower_endpoint = np.maximum.reduce((mean-sem, mean*1e-3, np.full_like(mean, np.finfo(float).tiny)))
+        asymmetric_yerr = np.vstack((mean-lower_endpoint, sem))
+        ax.errorbar(theta, mean, yerr=asymmetric_yerr, color=color, marker=marker, linewidth=2, markersize=6, capsize=2, label=rf"$d={d},\ N={n}$")
+        all_means.extend(mean)
+    theta_grid = np.unique([row["theta_M"] for row in rows])
+    anchor_theta = theta_grid[len(theta_grid)//2]
+    anchor_y = float(np.median(all_means))
+    ax.plot(theta_grid, anchor_y*(theta_grid/anchor_theta), color="#52514e", linestyle="--", linewidth=1.5, label=r"slope $1$")
+    ax.set(xscale="log", yscale="log", xlabel=r"$\theta_M$", ylabel=r"$\overline{\mathcal{M}}(\theta_M)$", title="Steady-state Mana vs rotation angle")
+    ax.legend(frameon=False)
+    ax.grid(True, which="major", color="#e1e0d9", linewidth=0.8)
+    ax.spines[["top", "right"]].set_visible(False)
+    for path, extra_metadata in ((output_png, {"Description": f"plot-only from {data_path.name}"}), (output_pdf, {"Subject": f"plot-only from {data_path.name}"})):
+        metadata = {"Title": "Figure 3 angle scan", **extra_metadata}
+        fig.savefig(path, dpi=300 if Path(path).suffix == ".png" else None, metadata=metadata)
+    plt.close(fig)
+    return output_png, output_pdf
 
 
-def apply_circuit(psi, gate_list, N, d):
-    gates, _ = get_gate_dicts(d)
-    for g in gate_list:
-        if g[0] == 'single':
-            psi = apply_single_qudit(psi, gates[g[2]], g[1], N, d)
-        else:
-            psi = apply_SUM(psi, g[1], g[2], N, d)
-    return psi
+def run_scan(output="qudit_mana_rotation_data.txt", cases=CASES, theta_values=THETA_VALUES):
+    rows = []
+    for (d, n), (replicas, cycles) in cases.items():
+        for i, theta in enumerate(theta_values):
+            values = [run_trajectory(d, n, float(theta), cycles, _rng(d, n, i, r)) for r in range(replicas)]
+            mean = float(np.mean(values)); sem = float(np.std(values, ddof=1)/np.sqrt(replicas))
+            rows.append((d, n, cycles, float(theta), replicas, mean, sem))
+            print(f"d={d}, N={n}, theta={theta:.6g}, mana={mean:.8g} +/- {sem:.3g}")
+    with open(output, "w", encoding="utf-8", newline="") as stream:
+        stream.write("# Terminal base-two Gross mana; error is the standard error of the mean.\n")
+        writer = csv.writer(stream, delimiter="\t")
+        writer.writerow(["d", "N", "T", "theta_M", "Nr", "mana_mean", "mana_sem"])
+        writer.writerows(rows)
+    return rows
 
 
-def apply_inverse_circuit(psi, gate_list, N, d):
-    gates, inv = get_gate_dicts(d)
-    for g in reversed(gate_list):
-        if g[0] == 'single':
-            psi = apply_single_qudit(psi, gates[inv[g[2]]], g[1], N, d)
-        else:
-            psi = apply_SUM_inv(psi, g[1], g[2], N, d)
-    return psi
-
-
-# ==========================================
-# 5. Rotation and measurement
-# ==========================================
-
-def rotation_gate(d, theta_M, a=1):
-    """
-    Local non-Clifford rotation R^{(d)}_{X,a}(theta_M).
-    Eq.(1): F_d^dagger diag(phases) F_d
-    d=2: diag(1, e^{i theta_M pi/4})
-    d=3: diag(1, e^{-i theta_M 2pi/9}, e^{i theta_M 2pi/9})
-    d>3: diag(e^{-i theta_M (2pi/d) a k^3})
-    """
-    F = fourier_matrix(d)
-    if d == 2:
-        phases = np.array([1.0, np.exp(1j * theta_M * np.pi / 4)])
-    elif d == 3:
-        phases = np.array([1.0,
-                           np.exp(-1j * theta_M * 2 * np.pi / 9),
-                           np.exp(1j * theta_M * 2 * np.pi / 9)])
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", default=None)
+    parser.add_argument("--smoke", action="store_true")
+    parser.add_argument("--plot-only", action="store_true", help="rebuild PNG and vector PDF from the data table")
+    args = parser.parse_args(argv)
+    folder = Path(__file__).resolve().parent
+    if args.plot_only:
+        data_path = Path(args.output) if args.output else folder / "qudit_mana_rotation_data.txt"
+        print("Saved " + ", ".join(map(str, plot_results(data_path))))
     else:
-        phases = np.array([np.exp(-1j * theta_M * (2 * np.pi / d) * a * (k ** 3))
-                           for k in range(d)])
-    return F.conj().T @ np.diag(phases) @ F
+        output = Path(args.output) if args.output else folder / ("qudit_mana_rotation_smoke.txt" if args.smoke else "qudit_mana_rotation_data.txt")
+        run_scan(output, {(3, 2): (2, 3)} if args.smoke else CASES, np.array([1e-3, 1e-2]) if args.smoke else THETA_VALUES)
+        if not args.smoke:
+            print("Saved " + ", ".join(map(str, plot_results(output))))
 
 
-def measure_qudit_single(N, psi, d):
-    """Measure qudit 0 in computational basis"""
-    psi_r = psi.reshape([d] * N)
-    # Sum over all other qudits to get probabilities for qudit 0
-    probs = np.sum(np.abs(psi_r) ** 2, axis=tuple(range(1, N)))
-    probs = probs / np.sum(probs)  # normalize to fix floating point errors
-    outcome = np.random.choice(d, p=probs)
-    # Project
-    new_psi = np.zeros_like(psi_r)
-    new_psi[outcome] = psi_r[outcome]
-    new_psi = new_psi / np.sqrt(probs[outcome])
-    return new_psi.reshape(-1)
-
-
-def run_trajectory(N, d, theta, T_max, seed=None):
-    if seed is not None:
-        np.random.seed(seed)
-
-    psi = np.zeros(d ** N, dtype=complex)
-    psi[0] = 1.0
-    R = rotation_gate(d, theta)
-    A_single = precompute_phase_point_operators(d, N)
-
-    for t in range(T_max):
-        gates = random_qudit_clifford_circuit(N, d, depth=4 * N)
-        psi = apply_circuit(psi, gates, N, d)
-        psi = apply_single_qudit(psi, R, 0, N, d)
-        psi = measure_qudit_single(N, psi, d)
-        psi = apply_inverse_circuit(psi, gates, N, d)
-
-    return mana(psi, d, A_single)
-
-
-def simulate_for_theta(args):
-    N, d, theta, Nr, T_max = args
-    A_single = precompute_phase_point_operators(d, N)
-    results = []
-    for r in range(Nr):
-        seed = N * 100000 + d * 10000 + int(theta * 10000) + r
-        m = run_trajectory(N, d, theta, T_max, seed)
-        results.append(m)
-    return np.mean(results), np.std(results) / np.sqrt(Nr)
-
-
-# ==========================================
-# 6. Main
-# ==========================================
-
-def main():
-    configs = [
-        {'d': 3, 'N': 2, 'Nr': 50, 'T_max': 500},
-        {'d': 3, 'N': 3, 'Nr': 50, 'T_max': 500},
-        {'d': 3, 'N': 4, 'Nr': 30, 'T_max': 500},
-        {'d': 5, 'N': 2, 'Nr': 50, 'T_max': 500},
-    ]
-
-    theta_list = np.logspace(-4, 0, 10)  # Same as Fig.6: 1e-4 to 1
-    all_results = {}
-
-    for cfg in configs:
-        d, N = cfg['d'], cfg['N']
-        Nr, T_max = cfg['Nr'], cfg['T_max']
-        key = f"d={d},N={N}"
-
-        print(f"\n>>> {key} (Nr={Nr}, T_max={T_max})")
-        m_mean = np.zeros(len(theta_list))
-        m_err = np.zeros(len(theta_list))
-
-        tasks = [(N, d, theta, Nr, T_max) for theta in theta_list]
-        print(f"    Total tasks: {len(tasks)}, serial execution")
-        t0 = time.time()
-
-        results = [simulate_for_theta(task) for task in tasks]
-
-        elapsed = time.time() - t0
-        print(f"    {key} done, time: {elapsed:.1f}s ({elapsed / 60:.1f} min)")
-
-        for th_idx, (theta, (m_m, m_e)) in enumerate(zip(theta_list, results)):
-            m_mean[th_idx] = m_m
-            m_err[th_idx] = m_e
-            print(f"    theta={theta:.3e}: mana={m_m:.3e}, err={m_e:.3e}")
-
-        all_results[key] = {
-            'theta': theta_list.copy(),
-            'mana': m_mean.copy(),
-            'err': m_err.copy(),
-            'd': d, 'N': N, 'Nr': Nr, 'T_max': T_max,
-        }
-
-        np.savez(f'mana_reproduction_{key.replace("=","").replace(",","_")}_partial.npz',
-                 theta=theta_list, mana=m_mean, err=m_err, d=d, N=N, Nr=Nr, T_max=T_max)
-
-    # Plot
-    fig, ax = plt.subplots(figsize=(8, 6))
-    colors = {'d=3,N=2': '#e74c3c', 'd=3,N=3': '#2ecc71', 'd=5,N=2': '#3498db'}
-    markers = {'d=3,N=2': 's', 'd=3,N=3': 'o', 'd=5,N=2': 'd'}
-
-    for key in all_results:
-        theta = all_results[key]['theta']
-        mana_vals = all_results[key]['mana']
-        err = all_results[key]['err']
-
-        ax.loglog(theta, mana_vals, marker=markers.get(key, 'o'), color=colors.get(key, '#333'),
-                  linestyle='-', linewidth=1.5, markersize=6,
-                  label=f'{key} (Nr={all_results[key]["Nr"]})')
-        ax.errorbar(theta, mana_vals, yerr=err, fmt='none',
-                    color=colors.get(key, '#333'), alpha=0.5)
-
-        # Fit linear slope in log-log (small angle)
-        mask = theta < 0.1
-        if np.sum(mask) > 2:
-            coeffs = np.polyfit(np.log(theta[mask]), np.log(mana_vals[mask]), 1)
-            print(f"{key}: fitted slope = {coeffs[0]:.3f}")
-
-    # Reference line proportional to theta, aligned with data
-    ref_th = np.array([1e-4, 3e-2])
-    ref_mana = ref_th * 2.5
-    ax.loglog(ref_th, ref_mana, 'k--', linewidth=1.5, label=r'$\propto \theta$')
-
-    ax.set_xlabel(r'$\theta$', fontsize=14)
-    ax.set_ylabel(r'$\bar{\mathcal{M}}^{\mathrm{SS}}$', fontsize=14)
-    ax.set_title('Steady-state Mana vs rotation angle (qudit monitored circuit)', fontsize=13)
-    ax.legend(fontsize=10)
-    ax.grid(True, which='both', ls='-', alpha=0.3)
-    ax.set_xlim([1e-4, 1])
-    ax.set_ylim([5e-5, 1])
-
-    plt.tight_layout()
-    plt.savefig('mana_reproduction.png', dpi=300)
-    print("\nPlot saved: mana_reproduction.png")
-
-    np.savez('mana_reproduction_data.npz', all_results=all_results, theta_list=theta_list)
-    print("Data saved: mana_reproduction_data.npz")
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

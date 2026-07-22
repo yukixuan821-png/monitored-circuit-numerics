@@ -4,37 +4,28 @@ This repository contains the numerical code for *Invariant Measures and Weak-Mag
 
 ## Monitored-circuit model
 
-All three code groups in this repository are based on the same monitored-circuit protocol. One monitored cycle consists of the following steps:
+All three code groups in this repository are based on the same monitored-circuit protocol. One monitored cycle consists of a freshly sampled public Clifford frame, a local magic injection on the first qubit or qudit, a measurement of the conjugate labelled Pauli axis, and the corresponding return to the public frame. The Figure 3 and Figure 4 programs sample the exact protocol-level ordered hyperbolic Pauli pair, including independent spectral offsets, rather than using a finite-depth brick-wall approximation or a fixed frame across a trajectory.
 
-1. Apply a global random Clifford scrambling step.
-2. Apply a local magic injection on the first qubit/qudit.
-3. Perform a local computational-basis measurement at that site.
-4. Apply the corresponding inverse Clifford to return to the original frame.
-5. Repeat the cycle with a freshly sampled random Clifford.
-
-The model schematic below represents the common dynamical framework shared by all three code groups: `qubit_2sre_rotation` studies steady-state 2-SRE in the qubit setting, `qudit_mana_rotation` studies steady-state Gross mana in the odd-prime qudit setting, and `four_state_mana_protocol` studies the exact mana time evolution of different initial states at fixed parameters.
+The model schematic below represents the common dynamical framework shared by all three code groups: `qubit_2sre_rotation` studies the terminal total base-two 2-SRE in the qubit setting, `qudit_mana_rotation` studies the terminal base-two Gross mana in the odd-prime qudit setting, and `four_state_mana_protocol` studies the exact mana time evolution of different initial states at fixed parameters.
 
 ![Monitored-circuit model schematic](figures/model_schematic.png)
 
 ## Repository structure
 
-* `qubit_2sre_rotation`: **Python** code. Scans the local magic-injection angle `theta_M` and computes the steady-state second Rényi entropy (2-SRE) for different system sizes in the qubit monitored circuit, to study the small-angle weak-magic-injection response in the qubit setting.
-* `qudit_mana_rotation`: **Python** code. Scans `theta_M` and computes the steady-state Gross mana for different local dimensions and system sizes in the odd-prime qudit monitored circuit, to study the small-angle weak-magic-injection response in the odd-prime qudit setting. This directory also includes a strict global-Clifford sampling version.
+* `qubit_2sre_rotation`: **Python** code. Scans the local magic-injection angle `theta_M` and computes the terminal total base-two stabilizer Rényi entropy for `N = 6, 8, 10, 12`. A full run saves the tabulated results and generates the PNG and vector PDF figures; the plotting script can redraw them directly from the released table.
+* `qudit_mana_rotation`: **Python** code. Scans `theta_M` and computes the terminal base-two Gross mana for `(d, N) = (3, 2), (3, 3), (3, 4), (5, 2)`. Its self-contained program saves the tabulated results and generates the PNG and vector PDF figures; `--plot-only` redraws them from the released table.
 * `four_state_mana_protocol`: **Matlab** code. Compares the exact Gross mana time evolution of representative initial-state ensembles at fixed parameters, to show how different initial states relax toward a common long-time monitored regime.
 
 ## Installation
 
 ### Python code
 
-The Python code in this repository was tested in a **Python 3.11** environment. The public Python scripts primarily use the following packages:
+The Python code in this repository was tested in a **Python 3.11** environment. The public Python scripts use:
 
 * `numpy`
 * `matplotlib`
 
-Some scripts also use:
-
-* `scipy`, for accelerated computation in the qubit 2-SRE code;
-* `qiskit`, for strict or uniform Clifford-sampling-related implementations.
+No Qiskit or SciPy installation is required for the Figure 3 and Figure 4 programs.
 
 ### Matlab code
 
@@ -42,7 +33,9 @@ The Matlab code in `four_state_mana_protocol` was run in **Matlab R2024b**.
 
 ## Main entry points
 
-* `qubit_2sre_rotation/qubit_2sre_rotation.py`: computes the steady-state qubit 2-SRE for different system sizes and rotation angles `theta_M`.
-* `qudit_mana_rotation/qudit_mana_rotation.py`: computes the steady-state qudit mana for odd-prime local dimensions, different system sizes, and rotation angles `theta_M`.
-* `qudit_mana_rotation/qudit_mana_rotation_strict.py`: computes the same qudit mana data using strict global Clifford sampling.
+* `qubit_2sre_rotation/qubit_2sre_rotation.py`: runs the Figure 4 scan, saves the terminal total base-two `S2` data, and generates the PNG and vector PDF outputs.
+* `qubit_2sre_rotation/plot_qubit_2sre_rotation.py`: redraws the Figure 4 outputs from the released data table without rerunning the simulation.
+* `qudit_mana_rotation/qudit_mana_rotation.py`: runs the Figure 3 scan, saves the terminal base-two mana data, and generates the PNG and vector PDF outputs; `--plot-only` redraws them from the released table.
 * `four_state_mana_protocol/Mana_protocol_4states_log2_embedded_0714.m`: compares the exact mana time evolution of representative initial-state ensembles in the monitored protocol.
+
+The released text tables provide the numerical values plotted in Figures 3 and 4 and allow the figures to be checked or redrawn without repeating the full simulations. The committed PNG files are previews; the corresponding PDF files are the vector figures intended for manuscript use.

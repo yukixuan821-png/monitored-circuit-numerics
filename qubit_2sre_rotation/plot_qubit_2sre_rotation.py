@@ -1,53 +1,60 @@
-"""
-Load existing Fig.6 data and replot with lines connecting the points.
-"""
+"""Plot the committed Figure 4 data table."""
+import csv
+from pathlib import Path
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
-# Load data
-data = np.load('fig6_reproduction_data_exact.npz', allow_pickle=True)
-N_list = data['N_list']
-theta_list = data['theta_list']
-all_results = data['all_results'].item()
+DATA_FILE = Path(__file__).with_name("qubit_2sre_rotation_data.txt")
+OUTPUT_PNG = Path(__file__).with_name("qubit_2sre_rotation.png")
+OUTPUT_PDF = Path(__file__).with_name("qubit_2sre_rotation.pdf")
+COLORS = ["#0072BD", "#D95319", "#EDB120", "#7E2F8E"]
+MARKERS = ["o", "s", "^", "D"]
 
-fig, ax = plt.subplots(figsize=(7, 7))
-colors = {4: '#9b59b6', 6: '#e74c3c', 8: '#2ecc71',
-          10: '#f39c12', 12: '#3498db'}
-markers = {4: 'v', 6: 's', 8: 'o', 10: '^', 12: 'd'}
 
-for N in N_list:
-    theta = all_results[N]['theta']
-    m2 = all_results[N]['m2']
-    err = all_results[N]['err']
+def read_results(path=DATA_FILE):
+    rows = []
+    with open(path, encoding="utf-8") as stream:
+        reader = csv.DictReader((line for line in stream if not line.startswith("#")), delimiter="\t")
+        for row in reader:
+            rows.append({key: float(value) for key, value in row.items()})
+    return rows
 
-    # Plot with both markers and connecting lines
-    ax.loglog(theta, m2, marker=markers.get(N, 'o'), color=colors.get(N, '#333'),
-              linestyle='-', linewidth=1.5, markersize=6,
-              label=f'N={N}')
-    ax.errorbar(theta, m2, yerr=err, fmt='none',
-                color=colors.get(N, '#333'), alpha=0.5)
 
-    # Fit slope for small angles
-    mask = theta < 0.1
-    if np.sum(mask) > 2:
-        coeffs = np.polyfit(np.log(theta[mask]), np.log(m2[mask]), 1)
-        print(f"N={N}: fitted slope = {coeffs[0]:.3f}")
+def plot_results(path=DATA_FILE, output_png=OUTPUT_PNG, output_pdf=OUTPUT_PDF):
+    plt.rcParams.update({"font.family": "Times New Roman", "mathtext.fontset": "stix", "font.size": 13, "axes.labelsize": 13, "legend.fontsize": 12, "xtick.labelsize": 13, "ytick.labelsize": 13, "pdf.fonttype": 42, "svg.fonttype": "none"})
+    rows = read_results(path)
+    fig, ax = plt.subplots(figsize=(6.5, 4.5))
+    fig.subplots_adjust(left=0.16, right=0.97, bottom=0.17, top=0.96)
+    all_means = []
+    for color, marker, n in zip(COLORS, MARKERS, (6, 8, 10, 12)):
+        group = sorted(
+            (row for row in rows if int(row["N"]) == n),
+            key=lambda row: row["theta_M"],
+        )
+        theta = np.array([row["theta_M"] for row in group])
+        mean = np.array([row["S2_mean"] for row in group])
+        sem = np.array([row["S2_sem"] for row in group])
+        if np.any(mean <= 0):
+            raise ValueError("log plot requires strictly positive aggregate means")
+        lower_endpoint = np.maximum.reduce((mean-sem, mean*1e-3, np.full_like(mean, np.finfo(float).tiny)))
+        asymmetric_yerr = np.vstack((mean-lower_endpoint, sem))
+        ax.errorbar(theta, mean, yerr=asymmetric_yerr, color=color, marker=marker, linewidth=2, markersize=6, capsize=2, label=rf"$N={n}$")
+        all_means.extend(mean)
+    theta_grid = np.unique([row["theta_M"] for row in rows])
+    anchor_theta = theta_grid[len(theta_grid)//2]
+    anchor_y = float(np.median(all_means))
+    ax.plot(theta_grid, anchor_y*(theta_grid/anchor_theta)**2, color="#52514e", linestyle="--", linewidth=1.5, label=r"slope $2$")
+    ax.set(xscale="log", yscale="log", xlabel=r"$\theta_M$", ylabel=r"$\overline{S}_2(\theta_M)$", title="Steady-state 2-SRE vs rotation angle")
+    ax.legend(frameon=False)
+    ax.grid(True, which="major", color="#e1e0d9", linewidth=0.8)
+    ax.spines[["top", "right"]].set_visible(False)
+    for output, extra_metadata in ((output_png, {"Description": f"plot-only from {Path(path).name}"}), (output_pdf, {"Subject": f"plot-only from {Path(path).name}"})):
+        metadata = {"Title": "Figure 4 angle scan", **extra_metadata}
+        fig.savefig(output, dpi=300 if Path(output).suffix == ".png" else None, metadata=metadata)
+    plt.close(fig)
+    return output_png, output_pdf
 
-# Reference line ~ theta^2
-ref_th = np.array([1e-3, 1e-1])
-ref_m2 = ref_th ** 2 * 1e-2
-ax.loglog(ref_th, ref_m2, 'k--', linewidth=1.5, label=r'$\propto \theta_M^2$')
 
-ax.set_xlabel(r'$\theta_M$', fontsize=18)
-ax.set_ylabel(r'$\bar{m}_2^{\mathrm{SS}}$', fontsize=18)
-ax.set_title('Reproduction of Fig.6 (exact paper protocol)', fontsize=17)
-ax.legend(fontsize=13)
-ax.tick_params(axis='both', which='major', labelsize=18)
-ax.grid(True, which='both', ls='-', alpha=0.3)
-ax.set_xlim([1e-4, 1])
-ax.set_ylim([1e-9, 1])
-
-plt.tight_layout()
-plt.savefig('fig6_reproduction_exact_protocol.png', dpi=300)
-print("\n图片已保存: fig6_reproduction_exact_protocol.png")
+if __name__ == "__main__":
+    print("Saved " + ", ".join(map(str, plot_results())))
