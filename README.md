@@ -12,7 +12,7 @@ The model schematic below represents the common dynamical framework shared by al
 
 ## Repository structure
 
-* `qubit_2sre_rotation`: **Python** code. Scans the local magic-injection angle `theta_M` and computes the terminal total base-two stabilizer Rényi entropy for `N = 6, 8, 10, 12`. A full run saves the tabulated results and generates the PNG and vector PDF figures; the plotting script can redraw them directly from the released table.
+* `qubit_2sre_rotation`: **Python** code. Scans the local magic-injection angle `theta_M` and computes the terminal total base-two stabilizer Rényi entropy for `N = 6, 8, 10, 12`. Its self-contained program saves the tabulated results and generates the PNG and vector PDF figures; `--plot-only` redraws them from the released table.
 * `qudit_mana_rotation`: **Python** code. Scans `theta_M` and computes the terminal base-two Gross mana for `(d, N) = (3, 2), (3, 3), (3, 4), (5, 2)`. Its self-contained program saves the tabulated results and generates the PNG and vector PDF figures; `--plot-only` redraws them from the released table.
 * `four_state_mana_protocol`: **Matlab** code. Compares the exact Gross mana time evolution of representative initial-state ensembles at fixed parameters, to show how different initial states relax toward a common long-time monitored regime.
 
@@ -28,8 +28,7 @@ The Matlab code in `four_state_mana_protocol` was run in **Matlab R2024b**.
 
 ## Main entry points
 
-* `qubit_2sre_rotation/qubit_2sre_rotation.py`: runs the Figure 4 scan, saves the terminal total base-two `S2` data, and generates the PNG and vector PDF outputs.
-* `qubit_2sre_rotation/plot_qubit_2sre_rotation.py`: redraws the Figure 4 outputs from the released data table without rerunning the simulation.
+* `qubit_2sre_rotation/qubit_2sre_rotation.py`: runs the Figure 4 scan, saves the terminal total base-two `S2` data, and generates the PNG and vector PDF outputs; `--plot-only` redraws them from the released table.
 * `qudit_mana_rotation/qudit_mana_rotation.py`: runs the Figure 3 scan, saves the terminal base-two mana data, and generates the PNG and vector PDF outputs; `--plot-only` redraws them from the released table.
 * `four_state_mana_protocol/Mana_protocol_4states_log2_embedded_0714.m`: compares the exact mana time evolution of representative initial-state ensembles in the monitored protocol.
 

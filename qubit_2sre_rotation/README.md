@@ -31,8 +31,7 @@ not an entropy density. The code evaluates this quantity using a blocked in-plac
 
 The main files in this directory are:
 
-* `qubit_2sre_rotation.py`: main simulation script;
-* `plot_qubit_2sre_rotation.py`: redraws the figure from the released table;
+* `qubit_2sre_rotation.py`: self-contained simulation and plotting program;
 * `qubit_2sre_rotation_data.txt`: final tabulated means and standard errors;
 * `qubit_2sre_rotation.png`: final plot preview;
 * `qubit_2sre_rotation.pdf`: final vector figure.
@@ -43,4 +42,4 @@ The code was tested with **Python 3.11**. It requires Python 3.8 or later, NumPy
 
 ## Usage
 
-Run `python qubit_2sre_rotation.py` to perform the full scan, save `qubit_2sre_rotation_data.txt`, and generate both figure formats. Run `python plot_qubit_2sre_rotation.py` to redraw the PNG and PDF directly from the released table without rerunning the simulation.
+Run `python qubit_2sre_rotation.py` to perform the full scan, save `qubit_2sre_rotation_data.txt`, and generate both figure formats. Run `python qubit_2sre_rotation.py --plot-only` to redraw the PNG and PDF directly from the released table without rerunning the simulation.

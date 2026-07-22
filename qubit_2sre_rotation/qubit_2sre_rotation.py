@@ -113,6 +113,53 @@ def run_trajectory(n, theta, cycles, rng):
     return total_s2(state)
 
 
+def read_results(path):
+    with open(path, encoding="utf-8") as stream:
+        reader = csv.DictReader((line for line in stream if not line.startswith("#")), delimiter="\t")
+        return [{key: float(value) for key, value in row.items()} for row in reader]
+
+
+def plot_results(data_path="qubit_2sre_rotation_data.txt", output_png=None, output_pdf=None):
+    data_path = Path(data_path)
+    output_png = data_path.with_name("qubit_2sre_rotation.png") if output_png is None else Path(output_png)
+    output_pdf = data_path.with_name("qubit_2sre_rotation.pdf") if output_pdf is None else Path(output_pdf)
+    rows = read_results(data_path)
+    import matplotlib.pyplot as plt
+    plt.rcParams.update({"font.family": "Times New Roman", "mathtext.fontset": "stix", "font.size": 13, "axes.labelsize": 13, "legend.fontsize": 12, "xtick.labelsize": 13, "ytick.labelsize": 13, "pdf.fonttype": 42, "svg.fonttype": "none"})
+    colors = ["#0072BD", "#D95319", "#EDB120", "#7E2F8E"]
+    markers = ["o", "s", "^", "D"]
+    fig, ax = plt.subplots(figsize=(6.5, 4.5))
+    fig.subplots_adjust(left=0.16, right=0.97, bottom=0.17, top=0.96)
+    all_means = []
+    for color, marker, n in zip(colors, markers, (6, 8, 10, 12)):
+        group = sorted(
+            (row for row in rows if int(row["N"]) == n),
+            key=lambda row: row["theta_M"],
+        )
+        theta = np.array([row["theta_M"] for row in group])
+        mean = np.array([row["S2_mean"] for row in group])
+        sem = np.array([row["S2_sem"] for row in group])
+        if np.any(mean <= 0):
+            raise ValueError("log plot requires strictly positive aggregate means")
+        lower_endpoint = np.maximum.reduce((mean-sem, mean*1e-3, np.full_like(mean, np.finfo(float).tiny)))
+        asymmetric_yerr = np.vstack((mean-lower_endpoint, sem))
+        ax.errorbar(theta, mean, yerr=asymmetric_yerr, color=color, marker=marker, linewidth=2, markersize=6, capsize=2, label=rf"$N={n}$")
+        all_means.extend(mean)
+    theta_grid = np.unique([row["theta_M"] for row in rows])
+    anchor_theta = theta_grid[len(theta_grid)//2]
+    anchor_y = float(np.median(all_means))
+    ax.plot(theta_grid, anchor_y*(theta_grid/anchor_theta)**2, color="#52514e", linestyle="--", linewidth=1.5, label=r"slope $2$")
+    ax.set(xscale="log", yscale="log", xlabel=r"$\theta_M$", ylabel=r"$\overline{S}_2(\theta_M)$", title="Steady-state 2-SRE vs rotation angle")
+    ax.legend(frameon=False)
+    ax.grid(True, which="major", color="#e1e0d9", linewidth=0.8)
+    ax.spines[["top", "right"]].set_visible(False)
+    for output, extra_metadata in ((output_png, {"Description": f"plot-only from {data_path.name}"}), (output_pdf, {"Subject": f"plot-only from {data_path.name}"})):
+        metadata = {"Title": "Figure 4 angle scan", **extra_metadata}
+        fig.savefig(output, dpi=300 if Path(output).suffix == ".png" else None, metadata=metadata)
+    plt.close(fig)
+    return output_png, output_pdf
+
+
 def run_scan(output="qubit_2sre_rotation_data.txt", cases=CASES, theta_values=THETA_VALUES):
     rows = []
     for n, (replicas, cycles) in cases.items():
@@ -133,13 +180,17 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", default=None)
     parser.add_argument("--smoke", action="store_true")
+    parser.add_argument("--plot-only", action="store_true", help="rebuild PNG and vector PDF from the data table")
     args = parser.parse_args(argv)
     folder = Path(__file__).resolve().parent
-    output = Path(args.output) if args.output else folder / ("qubit_2sre_rotation_smoke.txt" if args.smoke else "qubit_2sre_rotation_data.txt")
-    run_scan(output, {2: (2, 3)} if args.smoke else CASES, np.array([1e-3, 1e-2]) if args.smoke else THETA_VALUES)
-    if not args.smoke:
-        from plot_qubit_2sre_rotation import plot_results
-        print("Saved " + ", ".join(map(str, plot_results(output))))
+    if args.plot_only:
+        data_path = Path(args.output) if args.output else folder / "qubit_2sre_rotation_data.txt"
+        print("Saved " + ", ".join(map(str, plot_results(data_path))))
+    else:
+        output = Path(args.output) if args.output else folder / ("qubit_2sre_rotation_smoke.txt" if args.smoke else "qubit_2sre_rotation_data.txt")
+        run_scan(output, {2: (2, 3)} if args.smoke else CASES, np.array([1e-3, 1e-2]) if args.smoke else THETA_VALUES)
+        if not args.smoke:
+            print("Saved " + ", ".join(map(str, plot_results(output))))
 
 
 if __name__ == "__main__":
