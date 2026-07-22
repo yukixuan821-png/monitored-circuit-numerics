@@ -126,7 +126,7 @@ def plot_results(data_path="qudit_mana_rotation_data.txt", output_png=None, outp
     import matplotlib.pyplot as plt
     plt.rcParams.update({"font.family": "Times New Roman", "mathtext.fontset": "stix", "font.size": 13, "axes.labelsize": 13, "legend.fontsize": 12, "xtick.labelsize": 13, "ytick.labelsize": 13, "pdf.fonttype": 42, "svg.fonttype": "none"})
     fig, ax = plt.subplots(figsize=(6.5, 4.5))
-    fig.subplots_adjust(left=0.16, right=0.97, bottom=0.17, top=0.96)
+    fig.subplots_adjust(left=0.16, right=0.97, bottom=0.17, top=0.90)
     all_means = []
     for color, marker, (d, n) in zip(colors, markers, ((3, 2), (3, 3), (3, 4), (5, 2))):
         group = sorted(

@@ -19,7 +19,7 @@ The numbers of trajectories and evolution steps for these system sizes are:
 * `N = 10`: `Nr = 30`, `T_max = 1000`
 * `N = 12`: `Nr = 20`, `T_max = 2000`
 
-For a fixed $N$, all values of $\theta_M$ use the same `Nr` and `T_max`, so the angle dependence is compared under the same numerical budget. Each data point is the ensemble mean of the terminal value over `Nr` independent trajectories, and the error bars are standard errors $\mathrm{std}/\sqrt{N_r}$.
+For a fixed $N$, all values of $\theta_M$ use the same `Nr` and `T_max`, so the angle dependence is compared under the same numerical budget. Here `T_max` is the finite equilibration horizon preceding the observation. Each independent trajectory contributes one $S_2$ value evaluated at the terminal time `T_max`; no post-equilibration time-window average is taken. Each data point is the ensemble mean of these `Nr` terminal values, and the error bars are standard errors $\mathrm{std}(\text{terminal values},\mathrm{ddof}=1)/\sqrt{N_r}$.
 
 The observable is the total base-two stabilizer Rényi entropy
 
@@ -28,6 +28,8 @@ S_2=-\log_2\left(2^{-N}\sum_{P\in\mathcal P_N}|\langle P\rangle|^4\right),
 $$
 
 not an entropy density. The code evaluates this quantity using a blocked in-place Walsh–Hadamard transform.
+
+The dashed line is a scaling guide proportional to $\theta_M^2$, corresponding to slope two on the log--log axes. Its normalization is chosen only for visual comparison and is not obtained by fitting the numerical data. The weak-injection results are compared with the predicted quadratic scaling $\overline S_{2,T}(\theta_M)\propto\theta_M^2$.
 
 The main files in this directory are:
 

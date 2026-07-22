@@ -129,7 +129,7 @@ def plot_results(data_path="qubit_2sre_rotation_data.txt", output_png=None, outp
     colors = ["#0072BD", "#D95319", "#EDB120", "#7E2F8E"]
     markers = ["o", "s", "^", "D"]
     fig, ax = plt.subplots(figsize=(6.5, 4.5))
-    fig.subplots_adjust(left=0.16, right=0.97, bottom=0.17, top=0.96)
+    fig.subplots_adjust(left=0.16, right=0.97, bottom=0.17, top=0.90)
     all_means = []
     for color, marker, n in zip(colors, markers, (6, 8, 10, 12)):
         group = sorted(

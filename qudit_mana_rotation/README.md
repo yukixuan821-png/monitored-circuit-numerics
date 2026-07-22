@@ -22,7 +22,7 @@ All four parameter blocks use `T_max = 500`. The corresponding trajectory number
 * `(3, 4)`: `Nr = 30`
 * `(5, 2)`: `Nr = 50`
 
-For a fixed $(d,N)$, all values of $\theta_M$ use the same `Nr` and `T_max`, so the angle dependence is compared under the same numerical budget. Each data point is the ensemble mean of the terminal mana over `Nr` independent trajectories, and the error bars are standard errors $\mathrm{std}/\sqrt{N_r}$.
+For a fixed $(d,N)$, all values of $\theta_M$ use the same `Nr` and `T_max`, so the angle dependence is compared under the same numerical budget. Here `T_max` is the finite equilibration horizon preceding the observation. Each independent trajectory contributes one mana value evaluated at the terminal time `T_max`; no post-equilibration time-window average is taken. Each data point is the ensemble mean of these `Nr` terminal values, and the error bars are standard errors $\mathrm{std}(\text{terminal values},\mathrm{ddof}=1)/\sqrt{N_r}$.
 
 For $d=3$, the injection phases are
 
@@ -44,6 +44,8 @@ $$
 $$
 
 using a pure-state multidimensional FFT kernel.
+
+The dashed line is a scaling guide proportional to $\theta_M$, corresponding to slope one on the log--log axes. Its normalization is chosen only for visual comparison and is not obtained by fitting the numerical data. The weak-injection results are compared with the predicted linear scaling $\overline{\mathcal M}_T(\theta_M)\propto\theta_M$.
 
 The main files in this directory are:
 
