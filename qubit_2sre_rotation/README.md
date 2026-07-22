@@ -24,7 +24,7 @@ For a fixed $N$, all values of $\theta_M$ use the same `Nr` and `T_max`, so the 
 The observable is the total base-two stabilizer Rényi entropy
 
 $$
-S_2=-\log_2\!\left(2^{-N}\sum_{P\in\mathcal P_N}|\langle P\rangle|^4\right),
+S_2=-\log_2\left(2^{-N}\sum_{P\in\mathcal P_N}|\langle P\rangle|^4\right),
 $$
 
 not an entropy density. The code evaluates this quantity using a blocked in-place Walsh–Hadamard transform.
