@@ -20,7 +20,7 @@ The model schematic below represents the common dynamical framework shared by al
 
 ### Python code
 
-The Python programs were tested with **Python 3.11**. The current implementations require Python 3.8 or later and NumPy 1.21 or later. Matplotlib 3.4 or later is additionally required when generating or redrawing figures, including the default full runs and the plot-only commands. The `--smoke` checks and the numerical simulation routines themselves require only NumPy. SciPy and Qiskit are not used.
+The Python programs were tested with **Python 3.11**. The current implementations require Python 3.8 or later, NumPy 1.21 or later, and Matplotlib 3.4 or later.
 
 ### Matlab code
 

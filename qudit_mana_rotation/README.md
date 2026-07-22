@@ -54,10 +54,8 @@ The main files in this directory are:
 
 ## Installation
 
-The code was tested with **Python 3.11**. It requires Python 3.8 or later and NumPy 1.21 or later. Matplotlib 3.4 or later is required for the default full run and for plotting, but not for `--smoke`. SciPy and Qiskit are not required.
+The code was tested with **Python 3.11**. It requires Python 3.8 or later, NumPy 1.21 or later, and Matplotlib 3.4 or later.
 
 ## Usage
 
 Run `python qudit_mana_rotation.py` to perform the full scan, save `qudit_mana_rotation_data.txt`, and generate both figure formats. Run `python qudit_mana_rotation.py --plot-only` to redraw the PNG and PDF directly from the released table without rerunning the simulation.
-
-For a small numerical check, run `python qudit_mana_rotation.py --smoke`. This writes `qudit_mana_rotation_smoke.txt` and leaves the released paper table and figures unchanged. An explicit `--output` path may be supplied when a different data filename is desired.

@@ -2,7 +2,7 @@
 
 This directory contains Python code for studying how the qubit stabilizer Rényi entropy depends on the local magic-injection angle $\theta_M$. Starting from the computational-basis product state $|0\rangle^{\otimes N}$, the numerical task scans $\theta_M$ in the small-angle regime and compares the terminal response for several system sizes.
 
-Each monitored cycle independently samples a labelled public Clifford frame, applies the local injection projectively equivalent to $\exp(-i\pi\theta_M P/8)$, and measures the conjugate labelled Pauli axis. The exact protocol-level sampler uses a uniformly sampled ordered hyperbolic Pauli pair with independent spectral offsets. It has no Qiskit-dependent or finite-depth brick-wall fallback.
+Each monitored cycle independently samples a labelled public Clifford frame, applies the local injection projectively equivalent to $\exp(-i\pi\theta_M P/8)$, and measures the conjugate labelled Pauli axis. The exact protocol-level sampler uses a uniformly sampled ordered hyperbolic Pauli pair with independent spectral offsets.
 
 The current script uses the following system sizes:
 
@@ -39,10 +39,8 @@ The main files in this directory are:
 
 ## Installation
 
-The code was tested with **Python 3.11**. It requires Python 3.8 or later and NumPy 1.21 or later. Matplotlib 3.4 or later is required for the default full run and for plotting, but not for `--smoke`. SciPy and Qiskit are not required.
+The code was tested with **Python 3.11**. It requires Python 3.8 or later, NumPy 1.21 or later, and Matplotlib 3.4 or later.
 
 ## Usage
 
 Run `python qubit_2sre_rotation.py` to perform the full scan, save `qubit_2sre_rotation_data.txt`, and generate both figure formats. Run `python plot_qubit_2sre_rotation.py` to redraw the PNG and PDF directly from the released table without rerunning the simulation.
-
-For a small numerical check, run `python qubit_2sre_rotation.py --smoke`. This writes `qubit_2sre_rotation_smoke.txt` and leaves the released paper table and figures unchanged. An explicit `--output` path may be supplied when a different data filename is desired.
