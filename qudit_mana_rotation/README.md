@@ -54,10 +54,7 @@ The main files in this directory are:
 
 ## Installation
 
-The code in this directory was tested in a **Python 3.11** environment. The main dependencies are:
-
-* `numpy`
-* `matplotlib`, for plotting.
+The code was tested with **Python 3.11**. It requires Python 3.8 or later and NumPy 1.21 or later. Matplotlib 3.4 or later is required for the default full run and for plotting, but not for `--smoke`. SciPy and Qiskit are not required.
 
 ## Usage
 
