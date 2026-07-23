@@ -32,7 +32,7 @@
 %   weaker "fixed kick + independent random Pauli measurement" model.
 %
 % Output:
-%   The script creates a local folder "figures" and saves:
+%   The script saves the following files beside this MATLAB script:
 %       .png  high-resolution image
 %       .pdf  vector figure with embedded/vector text when supported
 %       .eps  vector figure for LaTeX workflows
@@ -206,10 +206,11 @@ end
 ylim(ax, [0, 1.05*ymax]);
 
 %% ----------------- save outputs -----------------
-outdir = fullfile(pwd, 'figures');
-if ~exist(outdir, 'dir')
-    mkdir(outdir);
+script_path = mfilename('fullpath');
+if isempty(script_path)
+    error('Save the script to disk before running it so outputs can be placed beside it.');
 end
+outdir = fileparts(script_path);
 
 tag = sprintf('Mana_log2_protocol_d%d_N%d_theta_%s_Nr%d', ...
     d, N, strrep(sprintf('%.3g',thetaM),'.','p'), Nr);

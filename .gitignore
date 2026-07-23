@@ -10,3 +10,13 @@ Thumbs.db
 *.fig
 *.asv
 figures/
+
+# Curated public assets tracked in this repository.
+!figures/
+!figures/model_schematic.png
+!figures/model_schematic.pdf
+!four_state_mana_protocol/Mana_log2_protocol_d3_N5_theta_0p2_Nr1000.png
+!four_state_mana_protocol/Mana_log2_protocol_d3_N5_theta_0p2_Nr1000.pdf
+!four_state_mana_protocol/Mana_log2_protocol_d3_N5_theta_0p2_Nr1000.eps
+!four_state_mana_protocol/Mana_log2_protocol_d3_N5_theta_0p2_Nr1000.fig
+!four_state_mana_protocol/Mana_log2_protocol_d3_N5_theta_0p2_Nr1000.mat
