@@ -44,7 +44,7 @@ The same construction underlies `qudit_mana_rotation`, `qubit_2sre_rotation`, an
 
 ### Python code
 
-The Python programs were tested with **Python 3.11**. They require Python 3.8 or later, NumPy 1.21 or later, and Matplotlib 3.4 or later.
+The Python programs were tested with **Python 3.11**. The tested environment is pinned in [`requirements.txt`](requirements.txt): NumPy 1.26.4 and Matplotlib 3.10.8. The programs require Python 3.8 or later; other compatible NumPy/Matplotlib versions may work, but the pinned environment is the reproducibility reference.
 
 ### MATLAB code
 
