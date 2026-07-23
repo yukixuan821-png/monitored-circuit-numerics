@@ -8,7 +8,7 @@ One monitored cycle samples a fresh Clifford frame, applies a local magic inject
 
 ![Monitored-circuit model schematic](figures/model_schematic.png)
 
-The PNG above is the repository preview. The vector version is stored as `figures/model_schematic.pdf`; use the file's **Download raw file** button to download it, since GitHub does not render this PDF reliably in the browser.
+The PNG above provides the repository preview, while `figures/model_schematic.pdf` provides the corresponding vector version.
 
 ## Public-frame implementation
 
