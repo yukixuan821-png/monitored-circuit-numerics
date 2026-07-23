@@ -45,7 +45,21 @@ $$
 
 using a pure-state multidimensional FFT kernel.
 
-The dashed line is a scaling guide proportional to $\theta_M$, corresponding to slope one on the log--log axes. Its normalization is chosen only for visual comparison and is not obtained by fitting the numerical data. The weak-injection results are compared with the predicted linear scaling $\overline{\mathcal M}_T(\theta_M)\propto\theta_M$.
+In the figure, the four colored curves correspond to $(d,N)=(3,2)$, $(3,3)$, $(3,4)$, and $(5,2)$. Every marker is the ensemble mean of one terminal base-two Gross mana value from each independent trajectory, and its vertical error bar is the corresponding SEM. The dashed line is a scaling guide proportional to $\theta_M$, corresponding to slope one on the log--log axes. Its normalization is chosen only for visual comparison and is not obtained by fitting the numerical data. The weak-injection results are compared with the predicted stationary scaling $\mathcal M(\theta_M)\propto\theta_M$ used in the manuscript.
+
+The released `qudit_mana_rotation_data.txt` table has one row for each parameter point and the columns:
+
+| Column | Meaning |
+|---|---|
+| `d` | local qudit dimension |
+| `N` | number of qudits |
+| `T` | terminal evolution horizon |
+| `theta_M` | local magic-injection angle |
+| `Nr` | number of independent trajectories |
+| `mana_mean` | mean terminal base-two Gross mana |
+| `mana_sem` | standard error of the terminal mean |
+
+The table contains terminal aggregate statistics rather than complete time series or individual trajectory records.
 
 The main files in this directory are:
 

@@ -29,7 +29,20 @@ $$
 
 not an entropy density. The code evaluates this quantity using a blocked in-place Walsh–Hadamard transform.
 
-The dashed line is a scaling guide proportional to $\theta_M^2$, corresponding to slope two on the log--log axes. Its normalization is chosen only for visual comparison and is not obtained by fitting the numerical data. The weak-injection results are compared with the predicted quadratic scaling $\overline S_{2,T}(\theta_M)\propto\theta_M^2$.
+In the figure, the four colored curves correspond to $N=6$, $8$, $10$, and $12$. Every marker is the ensemble mean of one terminal total base-two $S_2$ value from each independent trajectory, and its vertical error bar is the corresponding SEM. The dashed line is a scaling guide proportional to $\theta_M^2$, corresponding to slope two on the log--log axes. Its normalization is chosen only for visual comparison and is not obtained by fitting the numerical data. The weak-injection results are compared with the predicted stationary scaling $S_2(\theta_M)\propto\theta_M^2$ used in the manuscript.
+
+The released `qubit_2sre_rotation_data.txt` table has one row for each parameter point and the columns:
+
+| Column | Meaning |
+|---|---|
+| `N` | number of qubits |
+| `T` | terminal evolution horizon |
+| `theta_M` | local magic-injection angle |
+| `Nr` | number of independent trajectories |
+| `S2_mean` | mean terminal total base-two $S_2$ |
+| `S2_sem` | standard error of the terminal mean |
+
+The table contains terminal aggregate statistics rather than complete time series or individual trajectory records.
 
 The main files in this directory are:
 
