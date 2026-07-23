@@ -1,4 +1,4 @@
-# Terminal 2-SRE versus rotation angle in the qubit monitored circuit
+# Steady-state 2-SRE versus rotation angle in the qubit monitored circuit
 
 This directory contains Python code for studying how the qubit stabilizer Rényi entropy depends on the local magic-injection angle $\theta_M$. Starting from the computational-basis product state $|0\rangle^{\otimes N}$, the numerical task scans $\theta_M$ in the small-angle regime and compares the terminal response for several system sizes.
 
@@ -29,7 +29,7 @@ $$
 
 not an entropy density. The code evaluates this quantity using a blocked in-place Walsh–Hadamard transform.
 
-In the figure, the four colored curves correspond to $N=6$, $8$, $10$, and $12$. Every marker is the ensemble mean of one terminal total base-two $S_2$ value from each independent trajectory, and its vertical error bar is the corresponding SEM. The dashed line is a scaling guide proportional to $\theta_M^2$, corresponding to slope two on the log–log axes. Its normalization is chosen only for visual comparison and is not obtained by fitting the numerical data. The dashed guide shows the predicted weak-injection power law $S_2(\theta_M)\propto\theta_M^2$ for comparison. The released points are finite-horizon terminal estimates and do not by themselves constitute a stationarity test.
+In the figure, the four colored curves correspond to $N=6$, $8$, $10$, and $12$. Every marker is the ensemble mean of one terminal total base-two $S_2$ value from each independent trajectory, and its vertical error bar is the corresponding SEM. The dashed line is a scaling guide proportional to $\theta_M^2$, corresponding to slope two on the log–log axes. Its normalization is chosen only for visual comparison and is not obtained by fitting the numerical data. The dashed guide shows the predicted steady-state weak-injection power law $S_2(\theta_M)\propto\theta_M^2$ for comparison. The simulation uses the finite-time terminal ensemble mean as its numerical estimator of the steady-state response; no post-equilibration time-window average is taken.
 
 The released `qubit_2sre_rotation_data.txt` table has one row for each parameter point and the columns:
 

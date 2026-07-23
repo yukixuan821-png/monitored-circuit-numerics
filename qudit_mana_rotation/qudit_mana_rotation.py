@@ -146,7 +146,7 @@ def plot_results(data_path="qudit_mana_rotation_data.txt", output_png=None, outp
     anchor_theta = theta_grid[len(theta_grid)//2]
     anchor_y = float(np.median(all_means))
     ax.plot(theta_grid, anchor_y*(theta_grid/anchor_theta), color="#52514e", linestyle="--", linewidth=1.5, label=r"slope $1$")
-    ax.set(xscale="log", yscale="log", xlabel=r"$\theta_M$", ylabel=r"$\overline{\mathcal{M}}(\theta_M)$", title="Terminal mana vs rotation angle")
+    ax.set(xscale="log", yscale="log", xlabel=r"$\theta_M$", ylabel=r"$\overline{\mathcal{M}}(\theta_M)$", title="Steady-state Mana vs rotation angle")
     ax.legend(frameon=False)
     ax.grid(True, which="major", color="#e1e0d9", linewidth=0.8)
     ax.spines[["top", "right"]].set_visible(False)

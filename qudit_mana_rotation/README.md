@@ -1,4 +1,4 @@
-# Terminal mana versus rotation angle in the odd-prime qudit monitored circuit
+# Steady-state mana versus rotation angle in the odd-prime qudit monitored circuit
 
 This directory contains Python code for studying how the Gross mana in an odd-prime qudit random monitored quantum circuit depends on the local magic-injection angle $\theta_M$. Starting from the computational-basis product state $|0\rangle^{\otimes N}$, the numerical task scans $\theta_M$ in the small-angle regime and compares the terminal mana response for different local dimensions and system sizes.
 
@@ -47,7 +47,7 @@ $$
 
 using a pure-state multidimensional FFT kernel.
 
-In the figure, the four colored curves correspond to $(d,N)=(3,2)$, $(3,3)$, $(3,4)$, and $(5,2)$. Every marker is the ensemble mean of one terminal base-two Gross mana value from each independent trajectory, and its vertical error bar is the corresponding SEM. The dashed line is a scaling guide proportional to $\theta_M$, corresponding to slope one on the log–log axes. Its normalization is chosen only for visual comparison and is not obtained by fitting the numerical data. The dashed guide shows the predicted weak-injection power law $\mathcal M(\theta_M)\propto\theta_M$ for comparison. The released points are finite-horizon terminal estimates and do not by themselves constitute a stationarity test.
+In the figure, the four colored curves correspond to $(d,N)=(3,2)$, $(3,3)$, $(3,4)$, and $(5,2)$. Every marker is the ensemble mean of one terminal base-two Gross mana value from each independent trajectory, and its vertical error bar is the corresponding SEM. The dashed line is a scaling guide proportional to $\theta_M$, corresponding to slope one on the log–log axes. Its normalization is chosen only for visual comparison and is not obtained by fitting the numerical data. The dashed guide shows the predicted steady-state weak-injection power law $\mathcal M(\theta_M)\propto\theta_M$ for comparison. The simulation uses the finite-time terminal ensemble mean as its numerical estimator of the steady-state response; no post-equilibration time-window average is taken.
 
 The released `qudit_mana_rotation_data.txt` table has one row for each parameter point and the columns:
 
