@@ -4,11 +4,11 @@ This repository contains the numerical code for *Invariant Measures and Weak-Mag
 
 ## Monitored-circuit model
 
-One monitored cycle samples a fresh Clifford frame, applies a local magic injection on the first qubit or qudit, measures the conjugate local Pauli axis, and returns to the public frame. The same dynamical structure is used throughout the repository.
+One monitored cycle samples a fresh Clifford frame, applies a local magic injection on the first qubit or qudit, measures the conjugate local Pauli axis, and returns to the public frame. Repeating this stochastic cycle produces pure-state measurement trajectories in which magic injection competes with measurement-induced projection, while the changing Clifford frame redistributes the two operations over many-body Pauli directions. The same dynamical structure is used throughout the repository.
 
-[![Monitored-circuit model schematic](figures/model_schematic.png)](figures/model_schematic.pdf)
+![Monitored-circuit model schematic](figures/model_schematic.png)
 
-The image is a browser preview; click it to open the [vector PDF](figures/model_schematic.pdf).
+The PNG above is the repository preview. The vector version is stored as `figures/model_schematic.pdf`; use the file's **Download raw file** button to download it, since GitHub does not render this PDF reliably in the browser.
 
 ## Public-frame implementation
 
@@ -31,7 +31,7 @@ Both the injection and the measurement are evaluated through Pauli spectral comp
 
 A new ordered pair and two new offsets are sampled at every monitored cycle. The injection and measurement axes within one cycle come from the same labelled frame: they are not two independent random Pauli operators, and one frame is not reused for an entire trajectory. This direct public-frame sampler is the protocol-level replacement for explicit Clifford construction; it is not a finite-depth brick-wall approximation and has no environment-dependent sampler fallback.
 
-The same construction underlies the Figure 3 qudit mana scan, the Figure 4 qubit 2-SRE scan, and the four-state qutrit mana dynamics. Observable evaluation is then handled by the package-specific deterministic numerical kernels: a multidimensional FFT for Gross mana and a blocked Walsh-Hadamard transform for total qubit 2-SRE.
+The same construction underlies `qudit_mana_rotation`, `qubit_2sre_rotation`, and `four_state_mana_protocol`. Observable evaluation is then handled by the package-specific deterministic numerical kernels: a multidimensional FFT for Gross mana and a blocked Walsh-Hadamard transform for total qubit 2-SRE.
 
 ## Repository structure
 
@@ -52,8 +52,8 @@ The MATLAB code in `four_state_mana_protocol` was run in **MATLAB R2024b** and u
 
 ## Main entry points
 
-* `qubit_2sre_rotation/qubit_2sre_rotation.py`: runs the Figure 4 scan, saves terminal total base-two `S2` statistics, and generates PNG/PDF outputs.
-* `qudit_mana_rotation/qudit_mana_rotation.py`: runs the Figure 3 scan, saves terminal base-two mana statistics, and generates PNG/PDF outputs.
+* `qubit_2sre_rotation/qubit_2sre_rotation.py`: runs the qubit 2-SRE rotation-angle scan, saves terminal total base-two `S2` statistics, and generates PNG/PDF outputs.
+* `qudit_mana_rotation/qudit_mana_rotation.py`: runs the odd-prime qudit mana rotation-angle scan, saves terminal base-two mana statistics, and generates PNG/PDF outputs.
 * `four_state_mana_protocol/Mana_protocol_4states_log2_embedded_0714.m`: runs the four-state qutrit mana comparison and writes the five parameterized output files beside the script.
 
-The released Figure 3 and Figure 4 text tables contain the plotted terminal ensemble means and standard errors, allowing either figure to be checked or redrawn without repeating the full simulations. In the MATLAB package, the parameterized MAT file contains the time grid, ensemble-mean and representative-trajectory mana arrays, initial-state labels, and run metadata. PNG files provide browser previews; PDF and EPS files provide vector outputs; FIG is editable in MATLAB; and MAT contains the numerical data.
+The released tables in `qudit_mana_rotation` and `qubit_2sre_rotation` contain the plotted terminal ensemble means and standard errors, allowing their corresponding plots to be checked or redrawn without repeating the full simulations. In `four_state_mana_protocol`, the parameterized MAT file contains the time grid, ensemble-mean and representative-trajectory mana arrays, initial-state labels, and run metadata. PNG files provide browser previews; PDF and EPS files provide vector outputs; FIG is editable in MATLAB; and MAT contains the numerical data.
