@@ -22,7 +22,7 @@ The labelled operators are $P_X=\omega^{s_X}P(x)$ and $P_Z=\omega^{s_Z}P(z)$, wi
 
 The model schematic below represents the common dynamical framework shared by all three code groups: `qubit_2sre_rotation` studies the terminal total base-two 2-SRE in the qubit setting, `qudit_mana_rotation` studies the terminal base-two Gross mana in the odd-prime qudit setting, and `four_state_mana_protocol` studies the exact mana time evolution of different initial states at fixed parameters.
 
-![Monitored-circuit model schematic](figures/model_schematic.png)
+[Monitored-circuit model schematic (vector PDF)](figures/model_schematic.pdf)
 
 ## Repository structure
 
