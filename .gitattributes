@@ -1,0 +1,6 @@
+# Preserve generated scientific artifacts byte-for-byte across platforms.
+*.eps binary
+*.fig binary
+*.mat binary
+*.pdf binary
+*.png binary
