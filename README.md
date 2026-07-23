@@ -57,3 +57,15 @@ The MATLAB code in `four_state_mana_protocol` was run in **MATLAB R2024b** and u
 * `four_state_mana_protocol/Mana_protocol_4states_log2_embedded_0714.m`: runs the four-state qutrit mana comparison and writes the five parameterized output files beside the script.
 
 The released tables in `qudit_mana_rotation` and `qubit_2sre_rotation` contain the plotted terminal ensemble means and standard errors, allowing their corresponding plots to be checked or redrawn without repeating the full simulations. In `four_state_mana_protocol`, the parameterized MAT file contains the time grid, Monte Carlo mean and representative-trajectory mana arrays, initial-state labels, and run metadata. PNG files provide browser previews; PDF and EPS files provide vector outputs; FIG is editable in MATLAB; and MAT contains the numerical data.
+
+## Citation
+
+If you use this repository, please cite:
+
+> Guocheng Zhen, Xuanrong Yang, Chengkai Zhu, Ranyiliu Chen, and Xin Wang. *Numerical code for "Invariant Measures and Weak-Magic-Injection Asymptotics in Random Monitored Quantum Circuits"*. GitHub repository, 2026. https://github.com/yukixuan821-png/monitored-circuit-numerics.
+
+The same citation metadata is provided in [`CITATION.cff`](CITATION.cff) for GitHub's **Cite this repository** feature.
+
+## License
+
+This software is released under the [MIT License](LICENSE). Copyright (c) 2026 Guocheng Zhen and Xuanrong Yang.

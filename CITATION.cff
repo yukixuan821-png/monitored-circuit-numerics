@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+title: "Numerical code for Invariant Measures and Weak-Magic-Injection Asymptotics in Random Monitored Quantum Circuits"
+type: software
+authors:
+  - family-names: "Zhen"
+    given-names: "Guocheng"
+  - family-names: "Yang"
+    given-names: "Xuanrong"
+  - family-names: "Zhu"
+    given-names: "Chengkai"
+  - family-names: "Chen"
+    given-names: "Ranyiliu"
+  - family-names: "Wang"
+    given-names: "Xin"
+repository-code: "https://github.com/yukixuan821-png/monitored-circuit-numerics"
+url: "https://github.com/yukixuan821-png/monitored-circuit-numerics"
+version: "1.0.0"
+date-released: "2026-07-23"
