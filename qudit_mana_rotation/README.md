@@ -1,4 +1,4 @@
-# Steady-state mana versus rotation angle in the odd-prime qudit monitored circuit
+# Terminal mana versus rotation angle in the odd-prime qudit monitored circuit
 
 This directory contains Python code for studying how the Gross mana in an odd-prime qudit random monitored quantum circuit depends on the local magic-injection angle $\theta_M$. Starting from the computational-basis product state $|0\rangle^{\otimes N}$, the numerical task scans $\theta_M$ in the small-angle regime and compares the terminal mana response for different local dimensions and system sizes.
 
@@ -22,7 +22,7 @@ All four parameter blocks use `T_max = 500`. The corresponding trajectory number
 * `(3, 4)`: `Nr = 30`
 * `(5, 2)`: `Nr = 50`
 
-For a fixed $(d,N)$, all values of $\theta_M$ use the same `Nr` and `T_max`, so the angle dependence is compared under the same numerical budget. Here `T_max` is the finite equilibration horizon preceding the observation. Each independent trajectory contributes one mana value evaluated at the terminal time `T_max`; no post-equilibration time-window average is taken. Each data point is the ensemble mean of these `Nr` terminal values, and the error bars are standard errors $\mathrm{std}(\text{terminal values},\mathrm{ddof}=1)/\sqrt{N_r}$.
+For a fixed $(d,N)$, all values of $\theta_M$ use the same `Nr` and `T_max`, so the angle dependence is compared under the same numerical budget. Here `T_max` is the finite evolution horizon before the terminal observation. Each independent trajectory contributes one mana value evaluated at the terminal time `T_max`; no post-equilibration time-window average is taken. Each data point is the ensemble mean of these `Nr` terminal values, and the error bars are standard errors $\mathrm{std}(\text{terminal values},\mathrm{ddof}=1)/\sqrt{N_r}$.
 
 For $d=3$, the injection phases are
 
@@ -37,6 +37,8 @@ $$
 =(0,1,3,2,4).
 $$
 
+The corresponding spectral phases are $\exp[-2\pi i\theta_M\tau_{1,5}(k)/5]$ for $k=0,\ldots,4$.
+
 Gross mana is computed in bits as
 
 $$
@@ -45,7 +47,7 @@ $$
 
 using a pure-state multidimensional FFT kernel.
 
-In the figure, the four colored curves correspond to $(d,N)=(3,2)$, $(3,3)$, $(3,4)$, and $(5,2)$. Every marker is the ensemble mean of one terminal base-two Gross mana value from each independent trajectory, and its vertical error bar is the corresponding SEM. The dashed line is a scaling guide proportional to $\theta_M$, corresponding to slope one on the log--log axes. Its normalization is chosen only for visual comparison and is not obtained by fitting the numerical data. The weak-injection results are compared with the predicted stationary scaling $\mathcal M(\theta_M)\propto\theta_M$ used in the manuscript.
+In the figure, the four colored curves correspond to $(d,N)=(3,2)$, $(3,3)$, $(3,4)$, and $(5,2)$. Every marker is the ensemble mean of one terminal base-two Gross mana value from each independent trajectory, and its vertical error bar is the corresponding SEM. The dashed line is a scaling guide proportional to $\theta_M$, corresponding to slope one on the log–log axes. Its normalization is chosen only for visual comparison and is not obtained by fitting the numerical data. The dashed guide shows the predicted weak-injection power law $\mathcal M(\theta_M)\propto\theta_M$ for comparison. The released points are finite-horizon terminal estimates and do not by themselves constitute a stationarity test.
 
 The released `qudit_mana_rotation_data.txt` table has one row for each parameter point and the columns:
 

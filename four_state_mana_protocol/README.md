@@ -1,12 +1,12 @@
-# Exact mana dynamics for four representative initial states
+# Mana dynamics for four representative initial states
 
-This directory contains MATLAB code for comparing the exact Gross mana dynamics of four representative initial states in a random monitored quantum circuit. The numerical task studies how the magic of different initial states evolves with measurement steps at fixed parameters, and whether those states approach a common long-time behavior under the same monitored dynamics.
+This directory contains MATLAB code for comparing the Gross mana dynamics of four representative initial states in a random monitored quantum circuit. The simulation uses Monte Carlo protocol trajectories while evaluating Gross mana directly on every recorded pure-state sample. It studies how the magic of different fixed initial states evolves with measurement steps at fixed parameters and whether their trajectory means approach a common long-time behavior.
 
-The script compares Haar-random states, tensor-product qutrit `T`-type states, GUE-evolved product states, and computational-basis product states. The single-qutrit `T`-type state is proportional to `|0> + exp(2 pi i/9)|1> + exp(-2 pi i/9)|2>`, and the GUE-evolved state is `exp(-i H_GUE t)|0>^(tensor N)` with the spectrum normalized to `[-2,2]` and `t = 0.1`.
+The script compares a global Haar-random state, a tensor-product qutrit `T`-type state, a GUE-evolved product state, and a computational-basis product state. The single-qutrit `T`-type state is proportional to `|0> + exp(2 pi i/9)|1> + exp(-2 pi i/9)|2>`, and the GUE-evolved state is `exp(-i H_GUE t)|0>^(tensor N)` with the spectrum normalized to `[-2,2]` and `t = 0.1`.
 
-The simulation uses the public-frame-equivalent qutrit monitored Clifford protocol at `d = 3`, `N = 5`, and `theta_M = 0.2`, with `Tsteps = 2000`, `Nr = 1000`, `stride = 1`, and `seed = 1`. The burn-in length is `0`. All four initial states are evolved on the same time grid; at every recorded time the script averages the exact mana over the independent protocol trajectories.
+The simulation uses the public-frame-equivalent qutrit monitored Clifford protocol at `d = 3`, `N = 5`, and `theta_M = 0.2`, with `Tsteps = 2000`, `Nr = 1000`, `stride = 1`, and `seed = 1`. The burn-in length is `0`. The Haar and GUE initial vectors are each generated once and then held fixed across the `Nr` protocol trajectories; this is not an average over Haar or GUE initial-state ensembles. The same pseudorandom stream is restarted for each initial-state block to provide a common-random-numbers comparison, although state-dependent Born probabilities can still produce different measurement outcomes.
 
-The exact Gross mana is `M(psi) = log2(||W_psi||_1)`.
+At every recorded time, the dark curve is the Monte Carlo trajectory mean stored in `MmeanAll`, while the lighter curve is the first representative trajectory stored in `Mtraj1`. No SEM or confidence band is computed by this script. The horizontal axis shows `t+1` on a logarithmic scale so that the initial point `t=0` can be displayed. Gross mana itself is evaluated directly as `M(psi) = log2(||W_psi||_1)` for every recorded pure state.
 
 ## Files and outputs
 

@@ -1,4 +1,4 @@
-"""Odd-prime weak-magic-injection scan used for Figure 3.
+"""Odd-prime qudit mana weak-magic-injection angle scan.
 
 Each monitored cycle independently samples the labelled public Clifford frame,
 including both spectral offsets.  Gross mana is reported in bits.
@@ -146,12 +146,12 @@ def plot_results(data_path="qudit_mana_rotation_data.txt", output_png=None, outp
     anchor_theta = theta_grid[len(theta_grid)//2]
     anchor_y = float(np.median(all_means))
     ax.plot(theta_grid, anchor_y*(theta_grid/anchor_theta), color="#52514e", linestyle="--", linewidth=1.5, label=r"slope $1$")
-    ax.set(xscale="log", yscale="log", xlabel=r"$\theta_M$", ylabel=r"$\overline{\mathcal{M}}(\theta_M)$", title="Steady-state Mana vs rotation angle")
+    ax.set(xscale="log", yscale="log", xlabel=r"$\theta_M$", ylabel=r"$\overline{\mathcal{M}}(\theta_M)$", title="Terminal mana vs rotation angle")
     ax.legend(frameon=False)
     ax.grid(True, which="major", color="#e1e0d9", linewidth=0.8)
     ax.spines[["top", "right"]].set_visible(False)
     for path, extra_metadata in ((output_png, {"Description": f"plot-only from {data_path.name}"}), (output_pdf, {"Subject": f"plot-only from {data_path.name}"})):
-        metadata = {"Title": "Figure 3 angle scan", **extra_metadata}
+        metadata = {"Title": "Odd-prime qudit mana angle scan", **extra_metadata}
         fig.savefig(path, dpi=300 if Path(path).suffix == ".png" else None, metadata=metadata)
     plt.close(fig)
     return output_png, output_pdf

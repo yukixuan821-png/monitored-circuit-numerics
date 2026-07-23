@@ -1,4 +1,4 @@
-"""Qubit weak-magic-injection scan used for Figure 4.
+"""Qubit 2-SRE weak-magic-injection angle scan.
 
 The implementation samples a fresh labelled public Clifford frame at every
 monitored cycle.  It works directly with the induced ordered hyperbolic Pauli
@@ -149,12 +149,12 @@ def plot_results(data_path="qubit_2sre_rotation_data.txt", output_png=None, outp
     anchor_theta = theta_grid[len(theta_grid)//2]
     anchor_y = float(np.median(all_means))
     ax.plot(theta_grid, anchor_y*(theta_grid/anchor_theta)**2, color="#52514e", linestyle="--", linewidth=1.5, label=r"slope $2$")
-    ax.set(xscale="log", yscale="log", xlabel=r"$\theta_M$", ylabel=r"$\overline{S}_2(\theta_M)$", title="Steady-state 2-SRE vs rotation angle")
+    ax.set(xscale="log", yscale="log", xlabel=r"$\theta_M$", ylabel=r"$\overline{S}_2(\theta_M)$", title="Terminal 2-SRE vs rotation angle")
     ax.legend(frameon=False)
     ax.grid(True, which="major", color="#e1e0d9", linewidth=0.8)
     ax.spines[["top", "right"]].set_visible(False)
     for output, extra_metadata in ((output_png, {"Description": f"plot-only from {data_path.name}"}), (output_pdf, {"Subject": f"plot-only from {data_path.name}"})):
-        metadata = {"Title": "Figure 4 angle scan", **extra_metadata}
+        metadata = {"Title": "Qubit 2-SRE angle scan", **extra_metadata}
         fig.savefig(output, dpi=300 if Path(output).suffix == ".png" else None, metadata=metadata)
     plt.close(fig)
     return output_png, output_pdf

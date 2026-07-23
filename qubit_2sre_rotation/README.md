@@ -1,4 +1,4 @@
-# Steady-state 2-SRE versus rotation angle in the qubit monitored circuit
+# Terminal 2-SRE versus rotation angle in the qubit monitored circuit
 
 This directory contains Python code for studying how the qubit stabilizer Rényi entropy depends on the local magic-injection angle $\theta_M$. Starting from the computational-basis product state $|0\rangle^{\otimes N}$, the numerical task scans $\theta_M$ in the small-angle regime and compares the terminal response for several system sizes.
 
@@ -19,7 +19,7 @@ The numbers of trajectories and evolution steps for these system sizes are:
 * `N = 10`: `Nr = 30`, `T_max = 1000`
 * `N = 12`: `Nr = 20`, `T_max = 2000`
 
-For a fixed $N$, all values of $\theta_M$ use the same `Nr` and `T_max`, so the angle dependence is compared under the same numerical budget. Here `T_max` is the finite equilibration horizon preceding the observation. Each independent trajectory contributes one $S_2$ value evaluated at the terminal time `T_max`; no post-equilibration time-window average is taken. Each data point is the ensemble mean of these `Nr` terminal values, and the error bars are standard errors $\mathrm{std}(\text{terminal values},\mathrm{ddof}=1)/\sqrt{N_r}$.
+For a fixed $N$, all values of $\theta_M$ use the same `Nr` and `T_max`, so the angle dependence is compared under the same numerical budget. Here `T_max` is the finite evolution horizon before the terminal observation. Each independent trajectory contributes one $S_2$ value evaluated at the terminal time `T_max`; no post-equilibration time-window average is taken. Each data point is the ensemble mean of these `Nr` terminal values, and the error bars are standard errors $\mathrm{std}(\text{terminal values},\mathrm{ddof}=1)/\sqrt{N_r}$.
 
 The observable is the total base-two stabilizer Rényi entropy
 
@@ -29,7 +29,7 @@ $$
 
 not an entropy density. The code evaluates this quantity using a blocked in-place Walsh–Hadamard transform.
 
-In the figure, the four colored curves correspond to $N=6$, $8$, $10$, and $12$. Every marker is the ensemble mean of one terminal total base-two $S_2$ value from each independent trajectory, and its vertical error bar is the corresponding SEM. The dashed line is a scaling guide proportional to $\theta_M^2$, corresponding to slope two on the log--log axes. Its normalization is chosen only for visual comparison and is not obtained by fitting the numerical data. The weak-injection results are compared with the predicted stationary scaling $S_2(\theta_M)\propto\theta_M^2$ used in the manuscript.
+In the figure, the four colored curves correspond to $N=6$, $8$, $10$, and $12$. Every marker is the ensemble mean of one terminal total base-two $S_2$ value from each independent trajectory, and its vertical error bar is the corresponding SEM. The dashed line is a scaling guide proportional to $\theta_M^2$, corresponding to slope two on the log–log axes. Its normalization is chosen only for visual comparison and is not obtained by fitting the numerical data. The dashed guide shows the predicted weak-injection power law $S_2(\theta_M)\propto\theta_M^2$ for comparison. The released points are finite-horizon terminal estimates and do not by themselves constitute a stationarity test.
 
 The released `qubit_2sre_rotation_data.txt` table has one row for each parameter point and the columns:
 
